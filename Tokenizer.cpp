@@ -1,27 +1,16 @@
 #include "Tokenizer.h"
 
 
-
-Tokenizer::Tokenizer(string fileName)
-{
-}
-
-
 Tokenizer::~Tokenizer()
 {
 }
 
-void Tokenizer::scanFile()
+string Tokenizer::scan()
 {
+	int lineNum = 1;
+	int total = 0;
 	ifstream in(fileName);
-}
-
-string Tokenizer::scan(string myString, int lineNum)
-{
-	istringstream in(myString);
-	ostringstream out;
-// char c;
-// in.get(c);	
+	ostringstream out;	
 	while (in)
 	{
 		char asciiChar = in.peek();
@@ -30,7 +19,8 @@ string Tokenizer::scan(string myString, int lineNum)
 			Token token;
 			token.setType("COMMA");
 			token.setValue(",");
-			out << "(" << token.getType() << ", \"" << token.getValue() << "\", " << lineNum << ")" << endl;
+			out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
+			total++;
 			in.ignore();
 		}
 
@@ -39,7 +29,8 @@ string Tokenizer::scan(string myString, int lineNum)
 			Token token;
 			token.setType("PERIOD");
 			token.setValue(".");
-			out << "(" << token.getType() << ", \"" << token.getValue() << "\", " << lineNum << ")" << endl;
+			out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
+			total++;
 			in.ignore();
 		}
 
@@ -48,7 +39,8 @@ string Tokenizer::scan(string myString, int lineNum)
 			Token token;
 			token.setType("Q_MARK");
 			token.setValue("?");
-			out << "(" << token.getType() << ", \"" << token.getValue() << "\", " << lineNum << ")" << endl;
+			out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
+			total++;
 			in.ignore();
 		}
 
@@ -57,6 +49,8 @@ string Tokenizer::scan(string myString, int lineNum)
 			Token token;
 			token.setType("LEFT_PAREN");
 			token.setValue("(");
+			out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
+			total++;
 			in.ignore();
 		}
 
@@ -65,29 +59,31 @@ string Tokenizer::scan(string myString, int lineNum)
 			Token token;
 			token.setType("RIGHT_PAREN");
 			token.setValue(")");
-			out << "(" << token.getType() << ", \"" << token.getValue() << "\", " << lineNum << ")" << endl;
+			out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
+			total++;
 			in.ignore();
 		}
 
 		else if (asciiChar == ':')
 		{
-			//make dash a part
-			Token token;
-			token.setType("COLON_DASH");
-			token.setValue(":-");
-			out << "(" << token.getType() << ", \"" << token.getValue() << "\", " << lineNum << ")" << endl;
 			in.ignore();
-			in.ignore();
-		}
-
-		else if (asciiChar == ':')
-		{
-			Token token;
-			token.setType("COLON");
-			token.setValue(":");
-			out << "(" << token.getType() << ", \"" << token.getValue() << "\", " << lineNum << ")" << endl;
-			in.ignore();
-			in.putback();
+			if (in.peek() == '-')
+			{
+				Token token;
+				token.setType("COLON_DASH");
+				token.setValue(":-");
+				out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
+				total++;
+				in.ignore();
+			}
+			else
+			{
+				Token token;
+				token.setType("COLON");
+				token.setValue(":");
+				out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
+				total++;
+			}
 		}
 
 		else if (asciiChar == '*')
@@ -95,7 +91,8 @@ string Tokenizer::scan(string myString, int lineNum)
 			Token token;
 			token.setType("MULTIPLY");
 			token.setValue("*");
-			out << "(" << token.getType() << ", \"" << token.getValue() << "\", " << lineNum << ")" << endl;
+			out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
+			total++;
 			in.ignore();
 		}
 
@@ -104,108 +101,196 @@ string Tokenizer::scan(string myString, int lineNum)
 			Token token;
 			token.setType("ADD");
 			token.setValue("+");
-			out << "(" << token.getType() << ", \"" << token.getValue() << "\", " << lineNum << ")" << endl;
+			out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
+			total++;
 			in.ignore();
 		}
 
-		else if (asciiChar == 'S')
+		//for IDs
+		else if (isalpha(asciiChar))
 		{
+			Token token;
 			string tempString;
-			//in.get(4, 6);
-			out << in.str();
-			Token token;
-			token.setType("SCHEMES");
-			token.setValue("Schemes");
-			out << "(" << token.getType() << ", \"" << token.getValue() << "\", " << lineNum << ")" << endl;
-			in.ignore();
+			char tempChar;
+			in.get(tempChar);
+			tempString.push_back(tempChar);
+			while ((isalpha(in.peek())) || (isdigit(in.peek())))
+			{
+				in.get(tempChar);
+				tempString.push_back(tempChar);
+			}
+			if (tempString == "Schemes")
+			{
+				token.setType("SCHEMES");
+				token.setValue("Schemes");
+				out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
+				total++;
+			}
+			else if (tempString == "Facts")
+			{
+				token.setType("FACTS");
+				token.setValue("Facts");
+				out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
+				total++;
+			}
+			else if (tempString == "Rules")
+			{
+				token.setType("RULES");
+				token.setValue("Rules");
+				out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
+				total++;
+			}
+			else if (tempString == "Queries")
+			{
+				token.setType("QUERIES");
+				token.setValue("Queries");
+				out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
+				total++;
+			}
+			else
+			{
+				token.setType("ID");
+				token.setValue(tempString);
+				out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
+				total++;
+			}
 		}
 
-		else if (asciiChar == 'F')
+		else if (asciiChar == '\'')
 		{
 			Token token;
-			token.setType("FACTS");
-			token.setValue("Facts");
-			out << "(" << token.getType() << ", \"" << token.getValue() << "\", " << lineNum << ")" << endl;
-			in.ignore();
+			string tempString;
+			char tempChar;
+			bool isdefined = true;
+			in.get(tempChar);
+			tempString.push_back(tempChar);
+			while (in.peek() != '\'')
+			{
+				if (in.peek() == EOF)
+				{
+					token.setType("UNDEFINED");
+					token.setValue(tempString);
+					out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
+					total++;
+					isdefined = false;
+					break;
+				}
+				in.get(tempChar);
+				tempString.push_back(tempChar);
+			}
+			if (isdefined)
+			{
+				tempString.push_back('\'');
+				token.setType("STRING");
+				token.setValue(tempString);
+				out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
+				total++;
+				in.ignore();
+			}
 		}
 
-		else if (asciiChar == 'R')
+		else if (asciiChar == '#')
 		{
+			in.ignore();
 			Token token;
-			token.setType("RULES");
-			token.setValue("Rules");
-			out << "(" << token.getType() << ", \"" << token.getValue() << "\", " << lineNum << ")" << endl;
-			in.ignore();
-		}
-
-		else if (asciiChar == 'Q')
-		{
-			Token token;
-			token.setType("QUERIES");
-			token.setValue("Queries");
-			out << "(" << token.getType() << ", \"" << token.getValue() << "\", " << lineNum << ")" << endl;
-			in.ignore();
-		}
-		else
-		{
-		in.ignore();
-		}
-	}
-
-
-/*	out << asciiChar;	
-	while (in)
-	{
-		asciiChar = in.peek();
-		out << asciiChar;
-		in.ignore();
-	}
-*/
-/*
-	int numChars = 0;
-	char tempChar;
-	in.ignore();
-	numChars++;
-	tempChar = in.peek();
-	if (tempChar == 'c')
-	{
-		in.ignore();
-		numChars++;
-		tempChar = in.peek();
-		if (tempChar == 'h')
-		{
-			in.ignore();
-			numChars++;
-			tempChar = in.peek();
-			if (tempChar == 'e')
+			string tempString;
+			char tempChar;
+			int endLineNum = lineNum;
+			bool isdefined = true;
+			if ( in.peek() == '|')
 			{
 				in.ignore();
-				numChars++;
-				tempChar = in.peek();
-				if (tempChar == 'm')
+				tempString.push_back('#');
+				tempString.push_back('|');
+				while (1 == 1)
 				{
-					in.ignore();
-					numChars++;
-					tempChar = in.peek();
-					if (tempChar == 'e')
+					if (in.peek() == EOF)
 					{
-						in.ignore();
-						numChars++;
-						tempChar = in.peek();
-						if (tempChar = 's')
+						token.setType("UNDEFINED");
+						token.setValue(tempString);
+						out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
+						total++;
+						isdefined = false;
+						break;
+					}
+					in.get(tempChar);
+					tempString.push_back(tempChar);
+					if (tempChar == '\n')
+					{
+						lineNum++;
+					}
+					if (tempChar == '|')
+					{
+						if (in.peek() == '#')
 						{
-
-						}
-						else
-						{
-
+							tempString.pop_back();
+							in.ignore();
+							break;
 						}
 					}
 				}
-
+			}
+			else
+			{
+				tempString.push_back('#');
+				while ((in.peek() != '\n') && (in.peek() != EOF))
+				{
+					in.get(tempChar);
+					tempString.push_back(tempChar);
+				}
+				if (in.peek() == EOF)
+				{
+					Token token;
+					token.setType("EOF");
+					token.setValue("");
+					out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
+					total++;
+				}
+			}
+			if (isdefined)
+			{
+				token.setType("COMMENT");
+				token.setValue(tempString);
+				out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << endLineNum << ")" << endl;
+				total++;
 			}
 		}
+
+		else if (asciiChar == '\n')
+		{
+			lineNum++;
+			in.ignore();
+		}
+
+		else if (isspace(asciiChar))
+		{
+			in.ignore();
+		}
+
+		else if (asciiChar == EOF)
+		{
+			lineNum++;
+			Token token;
+			token.setType("EOF");
+			token.setValue("");
+			out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
+			total++;
+			break;
+		}
+
+		else 
+		{
+			Token token;
+			string tempString;
+			char tempChar;
+			in.get(tempChar);
+			tempString.push_back(asciiChar);
+			token.setType("UNDEFINED");
+			token.setValue(tempString);
+			out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
+			total++;
+		}
 	}
-*/
+	out << "Total Tokens = " << total << endl;
 	return out.str();
 }

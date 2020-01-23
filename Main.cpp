@@ -31,13 +31,6 @@ int main(int argc, char** argv)
 		cerr << "Unable to open output file:";
 	}
 
-	int lineNum = 1;
-	for (string line; getline(in, line);)
-	{
-		Token token;
-		tokenizer.scan(token, lineNum);
-
-		lineNum++;
-	}
+	out << tokenizer.scan();
 	return 0;
 }

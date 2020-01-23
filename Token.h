@@ -27,7 +27,7 @@ public:
 		return value;
 	}
 
-	string toString(Token token, int lineNum);
+	//string toString(Token token, int lineNum);
 
 protected:
 	string type;

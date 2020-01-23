@@ -8,11 +8,10 @@ using namespace std;
 class Tokenizer
 {
 public:
-	Tokenizer(string fileName) { this->fileName = fileName; scanFile(); };
+	Tokenizer(string fileName) { this->fileName = fileName; };
 	~Tokenizer();
 
-	void scanFile();
-	string scan(string myString, int lineNum);
+	string scan();
 protected:
 	string fileName;
 };
