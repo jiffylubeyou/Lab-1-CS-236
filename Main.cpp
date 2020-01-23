@@ -16,21 +16,9 @@ int main(int argc, char** argv)
 			return 1;
 		}
 
-	ifstream in(argv[1]);
-	if (!in)
-	{
-		cerr << "Unable to open input file";
-	}
-
 	string fileName = argv[1];
 	Tokenizer tokenizer(fileName);
 
-	ofstream out(argv[2]);
-	if (!out)
-	{
-		cerr << "Unable to open output file:";
-	}
-
-	out << tokenizer.scan();
+	cout << tokenizer.scan();
 	return 0;
 }
