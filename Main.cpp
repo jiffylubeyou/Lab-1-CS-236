@@ -10,15 +10,10 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-		if (argc < 3)
-		{
-			cerr << "Please provide input and output files";
-			return 1;
-		}
-
+	ofstream out(argv[2]);
 	string fileName = argv[1];
 	Tokenizer tokenizer(fileName);
 
-	cout << tokenizer.scan();
+	out << tokenizer.scan();
 	return 0;
 }

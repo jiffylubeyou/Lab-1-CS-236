@@ -78,82 +78,82 @@ string Tokenizer::scan()
 			}
 			else
 			{
-				Token token;
-				token.setType("COLON");
-				token.setValue(":");
-				out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
-				total++;
+			Token token;
+			token.setType("COLON");
+			token.setValue(":");
+			out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
+			total++;
 			}
 		}
 
 		else if (asciiChar == '*')
 		{
-			Token token;
-			token.setType("MULTIPLY");
-			token.setValue("*");
-			out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
-			total++;
-			in.ignore();
+		Token token;
+		token.setType("MULTIPLY");
+		token.setValue("*");
+		out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
+		total++;
+		in.ignore();
 		}
 
 		else if (asciiChar == '+')
 		{
-			Token token;
-			token.setType("ADD");
-			token.setValue("+");
-			out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
-			total++;
-			in.ignore();
+		Token token;
+		token.setType("ADD");
+		token.setValue("+");
+		out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
+		total++;
+		in.ignore();
 		}
 
 		//for IDs
 		else if (isalpha(asciiChar))
 		{
-			Token token;
-			string tempString;
-			char tempChar;
+		Token token;
+		string tempString;
+		char tempChar;
+		in.get(tempChar);
+		tempString.push_back(tempChar);
+		while ((isalpha(in.peek())) || (isdigit(in.peek())))
+		{
 			in.get(tempChar);
 			tempString.push_back(tempChar);
-			while ((isalpha(in.peek())) || (isdigit(in.peek())))
-			{
-				in.get(tempChar);
-				tempString.push_back(tempChar);
-			}
-			if (tempString == "Schemes")
-			{
-				token.setType("SCHEMES");
-				token.setValue("Schemes");
-				out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
-				total++;
-			}
-			else if (tempString == "Facts")
-			{
-				token.setType("FACTS");
-				token.setValue("Facts");
-				out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
-				total++;
-			}
-			else if (tempString == "Rules")
-			{
-				token.setType("RULES");
-				token.setValue("Rules");
-				out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
-				total++;
-			}
-			else if (tempString == "Queries")
-			{
-				token.setType("QUERIES");
-				token.setValue("Queries");
-				out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
-				total++;
-			}
-			else
-			{
-				token.setType("ID");
-				token.setValue(tempString);
-				out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
-				total++;
-			}
+		}
+		if (tempString == "Schemes")
+		{
+			token.setType("SCHEMES");
+			token.setValue("Schemes");
+			out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
+			total++;
+		}
+		else if (tempString == "Facts")
+		{
+			token.setType("FACTS");
+			token.setValue("Facts");
+			out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
+			total++;
+		}
+		else if (tempString == "Rules")
+		{
+			token.setType("RULES");
+			token.setValue("Rules");
+			out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
+			total++;
+		}
+		else if (tempString == "Queries")
+		{
+			token.setType("QUERIES");
+			token.setValue("Queries");
+			out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
+			total++;
+		}
+		else
+		{
+			token.setType("ID");
+			token.setValue(tempString);
+			out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
+			total++;
+		}
 		}
 
 		else if (asciiChar == '\'')
@@ -161,6 +161,7 @@ string Tokenizer::scan()
 			Token token;
 			string tempString;
 			char tempChar;
+			int endLineNum = lineNum;
 			bool isdefined = true;
 			in.get(tempChar);
 			tempString.push_back(tempChar);
@@ -170,22 +171,39 @@ string Tokenizer::scan()
 				{
 					token.setType("UNDEFINED");
 					token.setValue(tempString);
-					out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
+					out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << endLineNum << ")" << endl;
 					total++;
 					isdefined = false;
 					break;
 				}
 				in.get(tempChar);
 				tempString.push_back(tempChar);
+				if (tempChar == '\n')
+				{
+					lineNum++;
+				}
+				/*if ((tempChar == '\'')) //&& (in.peek() == '\''))
+				{
+					in.ignore();
+					continue;
+				}*/
 			}
 			if (isdefined)
 			{
 				tempString.push_back('\'');
 				token.setType("STRING");
 				token.setValue(tempString);
-				out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
+				out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << endLineNum << ")" << endl;
 				total++;
 				in.ignore();
+			}
+			else
+			{
+				Token token;
+				token.setType("EOF");
+				token.setValue("");
+				out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
+				total++;
 			}
 		}
 
@@ -208,7 +226,7 @@ string Tokenizer::scan()
 					{
 						token.setType("UNDEFINED");
 						token.setValue(tempString);
-						out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << lineNum << ")" << endl;
+						out << "(" << token.getType() << ",\"" << token.getValue() << "\"," << endLineNum << ")" << endl;
 						total++;
 						isdefined = false;
 						break;
@@ -223,7 +241,7 @@ string Tokenizer::scan()
 					{
 						if (in.peek() == '#')
 						{
-							tempString.pop_back();
+							tempString.push_back('#');
 							in.ignore();
 							break;
 						}
@@ -269,7 +287,6 @@ string Tokenizer::scan()
 
 		else if (asciiChar == EOF)
 		{
-			lineNum++;
 			Token token;
 			token.setType("EOF");
 			token.setValue("");
