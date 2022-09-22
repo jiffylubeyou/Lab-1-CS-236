@@ -14,6 +14,6 @@ int main(int argc, char** argv)
 	string fileName = argv[1];
 	Tokenizer tokenizer(fileName);
 
-	out << tokenizer.scan();
+	cout << tokenizer.scan();
 	return 0;
 }
